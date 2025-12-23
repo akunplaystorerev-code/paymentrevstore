@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Rev Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(120, 119, 198, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .welcome-text {
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            color: transparent;
+            background: linear-gradient(90deg, #f72585, #b5179e, #7209b7, #560bad, #480ca8, #3a0ca3);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: slideIn 3s ease-out forwards, gradientMove 5s infinite alternate;
+        }
+
+        @keyframes slideIn {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            70% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            85% {
+                transform: translateX(0) scale(1.05);
+            }
+            100% {
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .main-button {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(90deg, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 auto 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 3s;
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-button:hover {
+            background: linear-gradient(90deg, #3a0ca3, #4361ee);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(67, 97, 238, 0.4);
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .loader {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-top: 5px solid #4361ee;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .payment-container {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .payment-container.active {
+            display: grid;
+        }
+
+        .payment-method {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-method:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 2.2rem;
+            margin-right: 15px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .dana .payment-icon {
+            background: linear-gradient(135deg, #00a3ff, #0080ff);
+        }
+
+        .gopay .payment-icon {
+            background: linear-gradient(135deg, #00b2a9, #008e8c);
+        }
+
+        .payment-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .payment-details {
+            margin-bottom: 20px;
+        }
+
+        .payment-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #4cc9f0;
+        }
+
+        .payment-account {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 14px;
+            background: rgba(67, 97, 238, 0.15);
+            color: #4cc9f0;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(67, 97, 238, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .copy-btn.copied {
+            background: rgba(76, 201, 240, 0.25);
+            color: #72efdd;
+        }
+
+        .whatsapp-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 18px 35px;
+            background: linear-gradient(90deg, #25d366, #128c7e);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-btn:hover {
+            background: linear-gradient(90deg, #128c7e, #25d366);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(37, 211, 102, 0.4);
+        }
+
+        .instruction {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(76, 201, 240, 0.9);
+            color: #0d1b2a;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            .welcome-text {
+                font-size: 2rem;
+            }
+            
+            .main-button {
+                font-size: 1.3rem;
+                padding: 16px;
+            }
+            
+            .payment-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-text {
+                font-size: 1.7rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .payment-method {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="welcome-text">Selamat Datang di Payment Rev Store</h1>
+        
+        <button class="main-button" id="mainButton">
+            <i class="fas fa-credit-card"></i> Payment Rev Store
+        </button>
+        
+        <div class="payment-container" id="paymentContainer">
+            <!-- Dana Payment Method -->
+            <div class="payment-method dana">
+                <div class="payment-header">
+                    <div class="payment-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="payment-name">DANA</div>
+                </div>
+                <div class="payment-details">
+                    <div class="payment-number" id="danaNumber">085828481568</div>
+                    <div class="payment-account">Atas Nama: <strong>Revv</strong></div>
+                </div>
+                <button class="copy-btn" data-number="085828481568">
+                    <i class="far fa-copy"></i> Salin No
+                </button>
+            </div>
+            
+            <!-- GoPay Payment Method -->
+            <div class="payment-method gopay">
+                <div class="payment-header">
+                    <div class="payment-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="payment-name">GoPay</div>
+                </div>
+                <div class="payment-details">
+                    <div class="payment-number" id="gopayNumber">081220568534</div>
+                    <div class="payment-account">Atas Nama: <strong>Ahmad Karolus / Revvv</strong></div>
+                </div>
+                <button class="copy-btn" data-number="081220568534">
+                    <i class="far fa-copy"></i> Salin No
+                </button>
+            </div>
+        </div>
+        
+        <div class="whatsapp-section">
+            <a href="https://wa.me/6285828481568" target="_blank" class="whatsapp-btn" id="whatsappBtn">
+                <i class="fab fa-whatsapp"></i> Lanjut ke WhatsApp
+            </a>
+            <p class="instruction">Silahkan kirim bukti TF ke Rev Store.</p>
+        </div>
+    </div>
+    
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+    </div>
+    
+    <div class="notification" id="notification">Nomor berhasil disalin!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainButton = document.getElementById('mainButton');
+            const paymentContainer = document.getElementById('paymentContainer');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            const notification = document.getElementById('notification');
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            
+            // Animasi selesai, munculkan tombol utama
+            setTimeout(() => {
+                mainButton.style.opacity = '1';
+                mainButton.style.transform = 'translateY(0)';
+            }, 3000);
+            
+            // Tombol utama diklik
+            mainButton.addEventListener('click', function() {
+                // Tampilkan loading screen
+                loadingScreen.classList.add('active');
+                
+                // Simulasikan loading selama 1.5 detik
+                setTimeout(() => {
+                    loadingScreen.classList.remove('active');
+                    // Tampilkan payment container
+                    paymentContainer.classList.add('active');
+                    // Sembunyikan tombol utama
+                    mainButton.style.display = 'none';
+                }, 1500);
+            });
+            
+            // Fungsi untuk menyalin nomor
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const number = this.getAttribute('data-number');
+                    
+                    // Salin ke clipboard
+                    navigator.clipboard.writeText(number).then(() => {
+                        // Tampilkan notifikasi
+                        notification.textContent = `Nomor ${number} berhasil disalin!`;
+                        notification.classList.add('show');
+                        
+                        // Ubah tampilan tombol sementara
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                        this.classList.add('copied');
+                        
+                        // Reset tombol setelah 2 detik
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.classList.remove('copied');
+                        }, 2000);
+                        
+                        // Sembunyikan notifikasi setelah 3 detik
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                    }).catch(err => {
+                        console.error('Gagal menyalin: ', err);
+                        notification.textContent = 'Gagal menyalin nomor!';
+                        notification.classList.add('show');
+                        
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                    });
+                });
+            });
+            
+            // Tambahkan event listener untuk WhatsApp button
+            whatsappBtn.addEventListener('click', function() {
+                // Optional: Anda bisa menambahkan konfirmasi atau tracking di sini
+                console.log('Mengarahkan ke WhatsApp...');
+            });
+            
+            // Animasi tambahan untuk elemen payment saat muncul
+            const observerOptions = {
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Terapkan animasi pada setiap metode pembayaran
+            document.querySelectorAll('.payment-method').forEach((method, index) => {
+                method.style.opacity = '0';
+                method.style.transform = 'translateY(20px)';
+                method.style.transition = `opacity 0.5s ease ${index * 0.2}s, transform 0.5s ease ${index * 0.2}s`;
+                observer.observe(method);
+            });
+        });
+    </script>
+</body>
+</html>
