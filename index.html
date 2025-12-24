@@ -21,11 +21,12 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -136,6 +137,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.5s ease;
+            flex-direction: column;
         }
 
         .loading-screen.active {
@@ -150,6 +152,7 @@
             border: 5px solid rgba(67, 97, 238, 0.2);
             border-top: 5px solid #4361ee;
             animation: spin 1s linear infinite;
+            margin-bottom: 30px;
         }
 
         @keyframes spin {
@@ -157,9 +160,80 @@
             100% { transform: rotate(360deg); }
         }
 
+        .loading-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4cc9f0;
+        }
+
+        .payment-preview {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .payment-side {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.5s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-side:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        .payment-icon-large {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .left-side .payment-icon-large {
+            background: linear-gradient(135deg, #00a3ff, #0080ff);
+        }
+
+        .right-side .payment-icon-large {
+            background: linear-gradient(135deg, #7209b7, #560bad);
+        }
+
+        .payment-side-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .payment-side-desc {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
         .payment-container {
             display: none;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
             margin-top: 20px;
         }
@@ -209,6 +283,10 @@
             background: linear-gradient(135deg, #00b2a9, #008e8c);
         }
 
+        .qris .payment-icon {
+            background: linear-gradient(135deg, #7209b7, #560bad);
+        }
+
         .payment-name {
             font-size: 1.5rem;
             font-weight: 600;
@@ -229,14 +307,25 @@
         .payment-account {
             font-size: 1rem;
             color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
         }
 
-        .copy-btn {
+        .payment-note {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .copy-btn, .qris-btn {
             width: 100%;
             padding: 14px;
-            background: rgba(67, 97, 238, 0.15);
-            color: #4cc9f0;
-            border: 1px solid rgba(76, 201, 240, 0.3);
             border-radius: 10px;
             font-size: 1.1rem;
             font-weight: 600;
@@ -246,6 +335,13 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            border: none;
+        }
+
+        .copy-btn {
+            background: rgba(67, 97, 238, 0.15);
+            color: #4cc9f0;
+            border: 1px solid rgba(76, 201, 240, 0.3);
         }
 
         .copy-btn:hover {
@@ -256,6 +352,22 @@
         .copy-btn.copied {
             background: rgba(76, 201, 240, 0.25);
             color: #72efdd;
+        }
+
+        .qris-btn {
+            background: rgba(114, 9, 183, 0.15);
+            color: #b298dc;
+            border: 1px solid rgba(178, 152, 220, 0.3);
+        }
+
+        .qris-btn:hover {
+            background: rgba(114, 9, 183, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .qris-btn.requested {
+            background: rgba(178, 152, 220, 0.25);
+            color: #d8c6f5;
         }
 
         .whatsapp-section {
@@ -334,6 +446,15 @@
             .payment-container {
                 grid-template-columns: 1fr;
             }
+            
+            .payment-preview {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .payment-side {
+                width: 100%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -347,6 +468,10 @@
             
             .payment-method {
                 padding: 20px;
+            }
+            
+            .loading-text {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -371,10 +496,13 @@
                 <div class="payment-details">
                     <div class="payment-number" id="danaNumber">085828481568</div>
                     <div class="payment-account">Atas Nama: <strong>Revv</strong></div>
+                    <div class="payment-note">Transfer via aplikasi DANA</div>
                 </div>
-                <button class="copy-btn" data-number="085828481568">
-                    <i class="far fa-copy"></i> Salin No
-                </button>
+                <div class="action-buttons">
+                    <button class="copy-btn" data-number="085828481568">
+                        <i class="far fa-copy"></i> Salin No
+                    </button>
+                </div>
             </div>
             
             <!-- GoPay Payment Method -->
@@ -388,10 +516,33 @@
                 <div class="payment-details">
                     <div class="payment-number" id="gopayNumber">081220568534</div>
                     <div class="payment-account">Atas Nama: <strong>Ahmad Karolus / Revvv</strong></div>
+                    <div class="payment-note">Transfer via aplikasi Gojek</div>
                 </div>
-                <button class="copy-btn" data-number="081220568534">
-                    <i class="far fa-copy"></i> Salin No
-                </button>
+                <div class="action-buttons">
+                    <button class="copy-btn" data-number="081220568534">
+                        <i class="far fa-copy"></i> Salin No
+                    </button>
+                </div>
+            </div>
+            
+            <!-- QRIS Payment Method -->
+            <div class="payment-method qris">
+                <div class="payment-header">
+                    <div class="payment-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <div class="payment-name">QRIS</div>
+                </div>
+                <div class="payment-details">
+                    <div class="payment-number">Scan QR Code</div>
+                    <div class="payment-account">Pembayaran via QRIS</div>
+                    <div class="payment-note">QR Code akan diberikan oleh admin setelah request</div>
+                </div>
+                <div class="action-buttons">
+                    <button class="qris-btn" id="qrisButton">
+                        <i class="fas fa-paper-plane"></i> QRIS Minta Admin
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -405,6 +556,29 @@
     
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
+        <div class="loading-text">Memuat Metode Pembayaran...</div>
+        
+        <div class="payment-preview">
+            <div class="payment-side left-side">
+                <div class="payment-icon-large">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="payment-side-title">Transfer Langsung</div>
+                <div class="payment-side-desc">
+                    Pembayaran via DANA & GoPay dengan nomor rekening langsung
+                </div>
+            </div>
+            
+            <div class="payment-side right-side">
+                <div class="payment-icon-large">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <div class="payment-side-title">QRIS</div>
+                <div class="payment-side-desc">
+                    Pembayaran via scan QR Code dengan meminta QRIS ke admin
+                </div>
+            </div>
+        </div>
     </div>
     
     <div class="notification" id="notification">Nomor berhasil disalin!</div>
@@ -415,6 +589,7 @@
             const paymentContainer = document.getElementById('paymentContainer');
             const loadingScreen = document.getElementById('loadingScreen');
             const copyButtons = document.querySelectorAll('.copy-btn');
+            const qrisButton = document.getElementById('qrisButton');
             const notification = document.getElementById('notification');
             const whatsappBtn = document.getElementById('whatsappBtn');
             
@@ -426,17 +601,17 @@
             
             // Tombol utama diklik
             mainButton.addEventListener('click', function() {
-                // Tampilkan loading screen
+                // Tampilkan loading screen dengan dua tampilan
                 loadingScreen.classList.add('active');
                 
-                // Simulasikan loading selama 1.5 detik
+                // Simulasikan loading selama 2 detik
                 setTimeout(() => {
                     loadingScreen.classList.remove('active');
                     // Tampilkan payment container
                     paymentContainer.classList.add('active');
                     // Sembunyikan tombol utama
                     mainButton.style.display = 'none';
-                }, 1500);
+                }, 2000);
             });
             
             // Fungsi untuk menyalin nomor
@@ -475,6 +650,31 @@
                         }, 3000);
                     });
                 });
+            });
+            
+            // Tombol QRIS diklik
+            qrisButton.addEventListener('click', function() {
+                // Simulasikan permintaan QRIS ke admin
+                notification.textContent = "Permintaan QRIS telah dikirim ke admin!";
+                notification.style.background = "rgba(114, 9, 183, 0.9)";
+                notification.classList.add('show');
+                
+                // Ubah tampilan tombol sementara
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-clock"></i> Menunggu Admin...';
+                this.classList.add('requested');
+                
+                // Reset tombol setelah 3 detik
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.classList.remove('requested');
+                }, 3000);
+                
+                // Sembunyikan notifikasi setelah 4 detik
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.style.background = "rgba(76, 201, 240, 0.9)";
+                }, 4000);
             });
             
             // Tambahkan event listener untuk WhatsApp button
