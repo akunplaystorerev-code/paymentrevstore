@@ -49,7 +49,7 @@
         }
 
         .welcome-text {
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 700;
             text-align: center;
             margin-bottom: 40px;
@@ -231,15 +231,44 @@
             line-height: 1.5;
         }
 
-        .payment-container {
+        .payment-section {
             display: none;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
-        .payment-container.active {
+        .payment-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .payment-header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .payment-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .payment-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .payment-container {
             display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
         .payment-method {
@@ -365,16 +394,21 @@
             transform: translateY(-3px);
         }
 
-        .qris-btn.requested {
-            background: rgba(178, 152, 220, 0.25);
-            color: #d8c6f5;
+        .whatsapp-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
         }
 
-        .whatsapp-section {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
+        .whatsapp-section.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .whatsapp-btn {
@@ -394,6 +428,8 @@
             margin-bottom: 15px;
             text-decoration: none;
             box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+            width: 100%;
+            max-width: 400px;
         }
 
         .whatsapp-btn:hover {
@@ -406,6 +442,7 @@
             color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
             line-height: 1.5;
+            margin-top: 10px;
         }
 
         .notification {
@@ -429,13 +466,18 @@
             transform: translateY(0);
         }
 
+        .notification.qris-notif {
+            background: rgba(114, 9, 183, 0.9);
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 25px;
             }
             
             .welcome-text {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             
             .main-button {
@@ -455,11 +497,15 @@
             .payment-side {
                 width: 100%;
             }
+            
+            .payment-title {
+                font-size: 1.8rem;
+            }
         }
 
         @media (max-width: 480px) {
             .welcome-text {
-                font-size: 1.7rem;
+                font-size: 1.8rem;
             }
             
             .container {
@@ -473,84 +519,95 @@
             .loading-text {
                 font-size: 1.2rem;
             }
+            
+            .payment-title {
+                font-size: 1.6rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="welcome-text">Selamat Datang di Payment Rev Store</h1>
+        <h1 class="welcome-text">Selamat Datang di Payment</h1>
         
         <button class="main-button" id="mainButton">
             <i class="fas fa-credit-card"></i> Payment Rev Store
         </button>
         
-        <div class="payment-container" id="paymentContainer">
-            <!-- Dana Payment Method -->
-            <div class="payment-method dana">
-                <div class="payment-header">
-                    <div class="payment-icon">
-                        <i class="fas fa-wallet"></i>
+        <div class="payment-section" id="paymentSection">
+            <div class="payment-header-section">
+                <h2 class="payment-title">Payment Rev Store</h2>
+                <p class="payment-subtitle">Pilih metode pembayaran yang Anda inginkan</p>
+            </div>
+            
+            <div class="payment-container">
+                <!-- Dana Payment Method -->
+                <div class="payment-method dana">
+                    <div class="payment-header">
+                        <div class="payment-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="payment-name">DANA</div>
                     </div>
-                    <div class="payment-name">DANA</div>
+                    <div class="payment-details">
+                        <div class="payment-number" id="danaNumber">085828481568</div>
+                        <div class="payment-account">Atas Nama: <strong>Revv</strong></div>
+                        <div class="payment-note">Transfer via aplikasi DANA</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="copy-btn" data-number="085828481568">
+                            <i class="far fa-copy"></i> Salin No
+                        </button>
+                    </div>
                 </div>
-                <div class="payment-details">
-                    <div class="payment-number" id="danaNumber">085828481568</div>
-                    <div class="payment-account">Atas Nama: <strong>Revv</strong></div>
-                    <div class="payment-note">Transfer via aplikasi DANA</div>
+                
+                <!-- GoPay Payment Method -->
+                <div class="payment-method gopay">
+                    <div class="payment-header">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="payment-name">GoPay</div>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-number" id="gopayNumber">081220568534</div>
+                        <div class="payment-account">Atas Nama: <strong>Ahmad Karolus / Revvv</strong></div>
+                        <div class="payment-note">Transfer via aplikasi Gojek</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="copy-btn" data-number="081220568534">
+                            <i class="far fa-copy"></i> Salin No
+                        </button>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button class="copy-btn" data-number="085828481568">
-                        <i class="far fa-copy"></i> Salin No
-                    </button>
+                
+                <!-- QRIS Payment Method -->
+                <div class="payment-method qris">
+                    <div class="payment-header">
+                        <div class="payment-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div class="payment-name">QRIS</div>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-number">Scan QR Code</div>
+                        <div class="payment-account">Pembayaran via QRIS</div>
+                        <div class="payment-note">QR Code akan diberikan oleh admin via WhatsApp</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="qris-btn" id="qrisButton">
+                            <i class="fab fa-whatsapp"></i> QRIS Minta Admin
+                        </button>
+                    </div>
                 </div>
             </div>
             
-            <!-- GoPay Payment Method -->
-            <div class="payment-method gopay">
-                <div class="payment-header">
-                    <div class="payment-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <div class="payment-name">GoPay</div>
-                </div>
-                <div class="payment-details">
-                    <div class="payment-number" id="gopayNumber">081220568534</div>
-                    <div class="payment-account">Atas Nama: <strong>Ahmad Karolus / Revvv</strong></div>
-                    <div class="payment-note">Transfer via aplikasi Gojek</div>
-                </div>
-                <div class="action-buttons">
-                    <button class="copy-btn" data-number="081220568534">
-                        <i class="far fa-copy"></i> Salin No
-                    </button>
-                </div>
+            <div class="whatsapp-section" id="whatsappSection">
+                <a href="https://wa.me/6285828481568" target="_blank" class="whatsapp-btn" id="whatsappBtn">
+                    <i class="fab fa-whatsapp"></i> Lanjut ke WhatsApp
+                </a>
+                <p class="instruction">Silahkan kirim bukti TF ke Rev Store.</p>
             </div>
-            
-            <!-- QRIS Payment Method -->
-            <div class="payment-method qris">
-                <div class="payment-header">
-                    <div class="payment-icon">
-                        <i class="fas fa-qrcode"></i>
-                    </div>
-                    <div class="payment-name">QRIS</div>
-                </div>
-                <div class="payment-details">
-                    <div class="payment-number">Scan QR Code</div>
-                    <div class="payment-account">Pembayaran via QRIS</div>
-                    <div class="payment-note">QR Code akan diberikan oleh admin setelah request</div>
-                </div>
-                <div class="action-buttons">
-                    <button class="qris-btn" id="qrisButton">
-                        <i class="fas fa-paper-plane"></i> QRIS Minta Admin
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="whatsapp-section">
-            <a href="https://wa.me/6285828481568" target="_blank" class="whatsapp-btn" id="whatsappBtn">
-                <i class="fab fa-whatsapp"></i> Lanjut ke WhatsApp
-            </a>
-            <p class="instruction">Silahkan kirim bukti TF ke Rev Store.</p>
         </div>
     </div>
     
@@ -586,10 +643,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const mainButton = document.getElementById('mainButton');
-            const paymentContainer = document.getElementById('paymentContainer');
+            const paymentSection = document.getElementById('paymentSection');
             const loadingScreen = document.getElementById('loadingScreen');
             const copyButtons = document.querySelectorAll('.copy-btn');
             const qrisButton = document.getElementById('qrisButton');
+            const whatsappSection = document.getElementById('whatsappSection');
             const notification = document.getElementById('notification');
             const whatsappBtn = document.getElementById('whatsappBtn');
             
@@ -607,10 +665,14 @@
                 // Simulasikan loading selama 2 detik
                 setTimeout(() => {
                     loadingScreen.classList.remove('active');
-                    // Tampilkan payment container
-                    paymentContainer.classList.add('active');
                     // Sembunyikan tombol utama
                     mainButton.style.display = 'none';
+                    // Tampilkan payment section
+                    paymentSection.classList.add('active');
+                    // Tampilkan WhatsApp section setelah delay
+                    setTimeout(() => {
+                        whatsappSection.classList.add('show');
+                    }, 500);
                 }, 2000);
             });
             
@@ -623,6 +685,7 @@
                     navigator.clipboard.writeText(number).then(() => {
                         // Tampilkan notifikasi
                         notification.textContent = `Nomor ${number} berhasil disalin!`;
+                        notification.classList.remove('qris-notif');
                         notification.classList.add('show');
                         
                         // Ubah tampilan tombol sementara
@@ -643,6 +706,7 @@
                     }).catch(err => {
                         console.error('Gagal menyalin: ', err);
                         notification.textContent = 'Gagal menyalin nomor!';
+                        notification.classList.remove('qris-notif');
                         notification.classList.add('show');
                         
                         setTimeout(() => {
@@ -652,29 +716,22 @@
                 });
             });
             
-            // Tombol QRIS diklik
+            // Tombol QRIS diklik - langsung ke WhatsApp
             qrisButton.addEventListener('click', function() {
-                // Simulasikan permintaan QRIS ke admin
-                notification.textContent = "Permintaan QRIS telah dikirim ke admin!";
-                notification.style.background = "rgba(114, 9, 183, 0.9)";
+                // Tampilkan notifikasi
+                notification.textContent = "Mengarahkan ke WhatsApp untuk minta QRIS...";
+                notification.classList.add('qris-notif');
                 notification.classList.add('show');
                 
-                // Ubah tampilan tombol sementara
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-clock"></i> Menunggu Admin...';
-                this.classList.add('requested');
-                
-                // Reset tombol setelah 3 detik
+                // Delay sebentar lalu buka WhatsApp
                 setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.classList.remove('requested');
-                }, 3000);
+                    window.open('https://wa.me/6285828481568?text=Halo%20Admin%20Rev%20Store,%20saya%20ingin%20meminta%20QRIS%20untuk%20pembayaran.', '_blank');
+                }, 1000);
                 
-                // Sembunyikan notifikasi setelah 4 detik
+                // Sembunyikan notifikasi setelah 3 detik
                 setTimeout(() => {
                     notification.classList.remove('show');
-                    notification.style.background = "rgba(76, 201, 240, 0.9)";
-                }, 4000);
+                }, 3000);
             });
             
             // Tambahkan event listener untuk WhatsApp button
